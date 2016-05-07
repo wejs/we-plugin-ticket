@@ -1,7 +1,10 @@
 # we-plugin-ticket
 
-Plugin to add all process related to generate and valid event tickets
+[![npm version](https://badge.fury.io/js/we-plugin-ticket.svg)](https://badge.fury.io/js/we-plugin-ticket) [![Build Status](https://travis-ci.org/wejs/we-plugin-ticket.svg?branch=master)](https://travis-ci.org/wejs/we-plugin-ticket) [![Coverage Status](https://coveralls.io/repos/github/wejs/we-plugin-ticket/badge.svg?branch=master)](https://coveralls.io/github/wejs/we-plugin-ticket?branch=master)
 
+We.js tickets plugin, add user tickets from events, courses ...",
+
+Add all process related to generate and valid event tickets
 
 ## URLs
 
@@ -21,6 +24,7 @@ var data = {
   date: new Date(), // required || event, course, date for the thing how will happend
   // name to show in ticket, owner can change it
   displayName: 'Afro Samuray',
+  ownerId: 1,
   // full name, owner can change it
   // this name is used in user ticket validation or special tickets checks
   fullName: 'Alberto Souza', 
@@ -55,6 +59,10 @@ ticketAPI.createTicket(data, function (err, salvedTicket) {
 ## Links
 
 > * We.js site: http://wejs.org
+
+## NPM Info:
+
+[![NPM](https://nodei.co/npm/we-plugin-ticket.png?downloads=true&downloadRank=true&stars=true)](https://nodei.co/npm/we-plugin-ticket/)
 
 ## License
 
