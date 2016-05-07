@@ -21,4 +21,6 @@ notifications:
     - alberto@wejs.org
 
 after_success:
-  - NODE_ENV=test LOG_LV=info node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -u exports -R spec test/bootstrap.js test/**/*.test.js --timeout 20000
+- npm install coveralls
+- npm run coverage
+- cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js
