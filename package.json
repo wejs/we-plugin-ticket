@@ -32,7 +32,7 @@
     "we-theme-admin-default": "wejs/we-theme-admin-default",
     "we-theme-site-wejs": "wejs/we-theme-site-wejs"
   },
-  "repository": "wejs/we-plugin-event-ticket",
+  "repository": "wejs/we-plugin-ticket",
   "author": "Alberto Souza <contato@albertosouza.net>",
   "license": "MIT"
 }
