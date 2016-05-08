@@ -1,1 +1,12 @@
-{{{form-model model data validationError}}}
+<form name="ticket" class="" action="/user/{{data.ownerId}}/ticket/{{data.id}}/edit?redirectTo=/user/{{data.ownerId}}/ticket/{{data.id}}" method="post">
+  <div class="form-group">
+    <label for="ticket-fullName">{{t 'form-ticket-fullName'}} *</label>
+    <input id="ticket-fullName" name="fullName" type="text" class="form-control" required="required" value="{{data.fullName}}">
+    <p class="help-block">{{t 'form-helper-ticket-fullName'}}</p>
+  </div>
+  <div>
+    <button type="submit" class="btn btn-primary">{{t 'Save'}}</button>
+    <a href="/user/{{data.ownerId}}/ticket/{{data.id}}" class="btn btn-default">{{t 'Cancel'}}</a>
+    <a href="/delete?redirectTo=/user/{{data.ownerId}}/ticket/{{data.id}}" class="btn btn-danger">{{t 'Delete'}}</a>
+  </div>
+</form>

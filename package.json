@@ -19,7 +19,9 @@
     "server",
     "plugin.js"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "pdfkit": "^0.7.2"
+  },
   "devDependencies": {
     "express-mysql-session": "^1.0.0",
     "fs-extra": "^0.18.2",

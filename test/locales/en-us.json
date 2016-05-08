@@ -7,5 +7,11 @@
 	"user.ticket.findOne.not.found": "user.ticket.findOne.not.found",
 	"response.serveError.title": "response.serveError.title",
 	"user.ticket.edit.not.authenticated": "user.ticket.edit.not.authenticated",
-	"response.forbidden.description": "response.forbidden.description"
+	"response.forbidden.description": "response.forbidden.description",
+	"response.serverError.title": "response.serverError.title",
+	"response.serverError.description": "response.serverError.description",
+	"user.ticket.download.not.found": "user.ticket.download.not.found",
+	"response.notFound.description": "response.notFound.description",
+	"ticket.download.date.label": "ticket.download.date.label",
+	"user.ticket.find.old": "user.ticket.find.old"
 }

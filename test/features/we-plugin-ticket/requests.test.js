@@ -9,12 +9,10 @@ var agent;
 function ticketStub(user) {
   return  {
     title: 'NodeConf BR',
-    ticketTypeName: 'Primeiro lote',
+    typeName: 'Primeiro lote',
     typeIdentifier: 'event-ticket-1',
     date: new Date((new Date()).getTime() + (10 * 86400000)),
-    displayName: user.displayName,
     fullName: 'Alberto Souza',
-    email: user.email,
     ownerId: user.id, // set bellow
     location: 'Rio de Janeiro, deus me livre, rua X numero 20'
   };
@@ -93,7 +91,6 @@ describe('tickets_requests', function() {
 
             for (var i = tickets.length - 1; i >= 0; i--) {
               assert.equal(salvedUser.id, tickets[i].ownerId);
-              assert.equal(salvedUser.email, tickets[i].email);
               // only get next events
               assert(new Date(tickets[i].date).getTime() > currentTimeStamp);
             }
@@ -134,7 +131,6 @@ describe('tickets_requests', function() {
 
             for (var i = tickets.length - 1; i >= 0; i--) {
               assert.equal(salvedUser.id, tickets[i].ownerId);
-              assert.equal(salvedUser.email, tickets[i].email);
               // only get next events
               assert(new Date(tickets[i].date).getTime() < currentTimeStamp);
             }
@@ -227,18 +223,15 @@ describe('tickets_requests', function() {
         });
       });
 
-      it ('it should update only ticket fullName and displayName', function (done) {
+      it ('it should update only ticket fullName', function (done) {
 
         we.db.models.ticket.create(ticketStub(salvedUser))
         .then(function (r){
 
           var newData = {
             fullName: 'aaa aa a aaaa',
-            displayName: 'aa aa aa a aa',
-
             ownerId: 1231231,
-            title: 'aaaaaa',
-            email: 'asdasd@asdasda'
+            title: 'aaaaaa'
           }
 
           authenticatedRequest
@@ -253,12 +246,71 @@ describe('tickets_requests', function() {
             assert.equal(res.body.ticket.id, r.id);
 
             assert.equal(res.body.ticket.fullName, newData.fullName);
-            assert.equal(res.body.ticket.displayName, newData.displayName);
 
-
-            assert.equal(res.body.ticket.email, r.email);
             assert.equal(res.body.ticket.ownerId, r.ownerId);
             assert.equal(res.body.ticket.title, r.title);
+
+            done();
+          });
+        }).catch(done);
+      });
+
+      it ('it should redirect to ticket url after update with html reponse', function (done) {
+
+        we.db.models.ticket.create(ticketStub(salvedUser))
+        .then(function(r) {
+
+          var newData = {
+            fullName: 'aaa aa a aaaa',
+            ownerId: 1231231,
+            title: 'aaaaaa'
+          }
+
+          authenticatedRequest
+          .post('/user/'+salvedUser.id+'/ticket/'+r.id+'/edit')
+          .send(newData)
+          .expect(302)
+          .end(function (err, res) {
+            if (err) throw err;
+
+            assert.equal(res.header.location, '/user/'+salvedUser.id+'/ticket/'+r.idFilled);
+
+            done();
+          });
+        }).catch(done);
+      });
+    });
+
+    describe('get /user/:userId/ticket/:ticketId/download.pdf', function() {
+      it ('it should return 404 if not found the ticket', function (done) {
+        we.db.models.ticket.create(ticketStub(salvedUser))
+          .then(function (r){
+
+          authenticatedRequest
+          .get('/user/'+salvedUser.id+'/ticket/a3131311312/download.pdf')
+          .set('Accept', 'application/json')
+          .expect(404)
+          .end(function (err, res) {
+            if (err) throw err;
+
+            assert.equal(res.body.messages[0].message, 'user.ticket.download.not.found');
+
+            done();
+          });
+        });
+      });
+
+      it ('it should return create the pdf file and send to browser', function (done) {
+        we.db.models.ticket.create(ticketStub(salvedUser))
+        .then(function (r){
+
+          authenticatedRequest
+          .get('/user/'+salvedUser.id+'/ticket/'+r.id+'/download.pdf')
+          .expect(200)
+          .end(function (err, res) {
+            if (err) throw err;
+
+            assert(res.text);
 
             done();
           });

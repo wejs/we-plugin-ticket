@@ -1,0 +1,10 @@
+.ticket-teaser .ticket-qrcode {
+  width: 100px;
+  float: right;
+  margin: 0px 8px 4px 0px;
+}
+
+.ticket-full .ticket-qrcode svg{
+  width: 200px;
+  margin: 15px 0px;
+}

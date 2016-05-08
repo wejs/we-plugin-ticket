@@ -9,12 +9,10 @@ var ticketAPI;
 
 var stubData = {
   title: 'NodeConf BR',
-  ticketTypeName: 'Primeiro lote',
+  typeName: 'Primeiro lote',
   typeIdentifier: 'event-ticket-1',
   date: new Date((new Date()).getTime() + (10 * 86400000)),
-  displayName: 'Afro Samuray',
   fullName: 'Alberto Souza',
-  email: 'contato@albertosouza.net',
   ownerId: null, // set bellow
   location: 'Rio de Janeiro, deus me livre, rua X numero 20'
 };
@@ -174,7 +172,7 @@ describe('we-plugin-ticketFeature', function() {
 
               assert(record);
               assert.equal(record.id, salvedTicket.id);
-              assert.equal(record.status, 'checkIn');
+              assert(record.checkIn);
 
               done();
             });
@@ -213,25 +211,6 @@ describe('we-plugin-ticketFeature', function() {
         ticketAPI.checkIn(1, function (err, record) {
           assert(!record);
           assert.equal(err, 'ticket.not.valid');
-
-          we.db.models.ticket.findOne = findOne;
-
-          done();
-        });
-      });
-
-      it ('checkIn should return error ticket.status.are.checkIn if status is checkIn', function (done) {
-
-        var findOne = we.db.models.ticket.findOne;
-        we.db.models.ticket.findOne = function() {
-          return new we.db.Sequelize.Promise(function (resolve) {
-            resolve({id: 1, status: 'checkIn'});
-          });
-        }
-
-        ticketAPI.checkIn(1, function (err, record) {
-          assert(!record);
-          assert.equal(err, 'ticket.status.are.checkIn');
 
           we.db.models.ticket.findOne = findOne;
 
@@ -367,5 +346,4 @@ describe('we-plugin-ticketFeature', function() {
 
     });
   });
-
 });

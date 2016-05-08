@@ -42,7 +42,7 @@ ticketAPI.createTicket(data, function (err, salvedTicket) {
 
   });
 
-  // marck user check in
+  // check in
   ticketAPI.checkIn(salvedTicket.id, function (err, record) {
     console.log('checkIn:', err, record.id);
   });
