@@ -20,7 +20,8 @@
     "plugin.js"
   ],
   "dependencies": {
-    "pdfkit": "^0.7.2"
+    "pdfkit": "^0.7.2",
+    "qr-image": "^3.1.0"
   },
   "devDependencies": {
     "express-mysql-session": "^1.0.0",
