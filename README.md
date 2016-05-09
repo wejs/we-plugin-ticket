@@ -19,17 +19,14 @@ var ticketAPI = we.plugins['we-plugin-ticket'].api;
 // Example data
 var data = {
   title: 'NodeConf BR', // required
-  ticketTypeName: 'Primeiro lote',
-  typeIdentifier: 'event-ticket-1', // required
+  typeName: 'Primeiro lote',
+  typeIdentifier: 'ev-1-t1', // required, any string to idenfity this ticket
   date: new Date(), // required || event, course, date for the thing how will happend
-  // name to show in ticket, owner can change it
-  displayName: 'Afro Samuray',
+  // The user how will use it, is printed, owner can change
+  fullName: 'Afro Samuray',
   ownerId: 1,
-  // full name, owner can change it
-  // this name is used in user ticket validation or special tickets checks
-  fullName: 'Alberto Souza', 
-  email: 'contato@albertosouza.net', // reqiured
   location: 'Rio de Janeiro, deus me livre, rua X numero 20' // event location
+  eventUrl: '', // (optional)
 };
 
 // - Create new ticket to user 1
@@ -43,13 +40,14 @@ ticketAPI.createTicket(data, function (err, salvedTicket) {
   });
 
   // check in
-  ticketAPI.checkIn(salvedTicket.id, function (err, record) {
+  ticketAPI.checkIn(salvedTicket.id, actorId function (err, record) {
     console.log('checkIn:', err, record.id);
   });
 
-  // close the ticket, all done (optional)
-  ticketAPI.closeTicket(salvedTicket.id, function (err, record) {
-    console.log('closeTicket:', err, record.id);
+  // Set ticket status to used, all done (optional), 
+  // use this action to close one ticket after user leaves the event if it cant returns
+  ticketAPI.useTicket(salvedTicket.id, actorId,function (err, record) {
+    console.log('useTicket:', err, record.id);
   });
 });
 
