@@ -52,11 +52,23 @@ describe('tickets_requests', function() {
 
   describe('CRUD', function() {
     beforeEach(function beforeaEach(done) {
-      // delete all tickets after every CRUD test
-      we.db.models.ticket.truncate()
-      .then(function(){
-        done();
-      }).catch(done);
+
+      we.db.defaultConnection.transaction(function(t) {
+
+        var options = { raw: true, transaction: t }
+        return we.db.defaultConnection
+        .query('SET FOREIGN_KEY_CHECKS = 0', options)
+        .then(function(){
+          return we.db.models.ticketLog.truncate(options)
+        })
+        .then(function() {
+          return we.db.models.ticket.truncate(options)
+        })
+        .then(function() {
+          return we.db.defaultConnection.query('SET FOREIGN_KEY_CHECKS = 1', options)
+        });
+      }).then(function(){ done(); })
+      .catch(done);
     });
 
     describe('get /user/:userId/ticket', function() {

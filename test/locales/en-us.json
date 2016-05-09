@@ -13,5 +13,9 @@
 	"user.ticket.download.not.found": "user.ticket.download.not.found",
 	"response.notFound.description": "response.notFound.description",
 	"ticket.download.date.label": "ticket.download.date.label",
-	"user.ticket.find.old": "user.ticket.find.old"
+	"user.ticket.find.old": "user.ticket.find.old",
+	"ticket.log.created": "ticket.log.created",
+	"ticket.log.check.in": "ticket.log.check.in",
+	"ticket.log.use.ticket": "ticket.log.use.ticket",
+	"tickets.my": "tickets.my"
 }

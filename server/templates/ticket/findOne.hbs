@@ -1,7 +1,6 @@
 {{#with data}}
   <div class="ticket-teaser">
     <div class="ticket-qrcode">{{{qrcode}}}</div>
-
     {{#if eventUrl}}
       <h3>
         <a href="eventUrl" target="_blank">{{title}}</a> <small>{{status}}</small>
@@ -15,26 +14,43 @@
     <p>{{location}}</p>
     <p>{{id}} - {{typeIdentifier}} - {{t 'ticket.download.date.label'}} {{we-date createdAt}}</p>
 
-    <div class="tickets-footer">
+    <div class="ticket-footer">
       <a href="/user/{{ownerId}}/ticket" class="btn btn-default">
         <span class="fa fa-backward" aria-hidden="true"></span> {{t 'user.ticket.find'}}
       </a>
-      <a href="/user/{{ownerId}}/ticket/{{id}}/edit?redirectTo={{../req.url}}" class="btn btn-default">
-        <span class="fa fa-pencil" aria-hidden="true"></span> {{t 'Edit'}}
-      </a>
+      {{#unless old}}
+        <a href="/user/{{ownerId}}/ticket/{{id}}/edit?redirectTo={{../req.url}}" class="btn btn-default">
+          <span class="fa fa-pencil" aria-hidden="true"></span> {{t 'Edit'}}
+        </a>
+      {{/unless}}
       <a href="/user/{{ownerId}}/ticket/{{id}}/download.pdf" class="btn btn-default" target="_blank">
         <span class="fa fa-download" aria-hidden="true"></span> {{t 'Download'}}
       </a>
     </div>
 
+    <div class="ticket-logs">
+      <h3>{{t 'ticketLogs.find'}}</h3>
 
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th>{{t 'ticketLog.text'}}</th>
+              <th>{{t 'ticketLog.displayName'}}</th>
+              <th>{{t 'ticketLog.id'}}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each logs}}
+              <tr class="ticket-log">
+                <td class="ticket-log-actor"><strong>{{text}}</strong></td>
+                <td>{{actor.displayName}}</td>
+                <td>{{id}}</td>
+              </td>
+            {{else}}
+              <tr><td colspan="3" class="text-center">{{t 'ticketLog.find.empty'}}</td></tr>
+            {{/each}}
+          </tbody>
+        </table>
+    </div>
   </div>
 {{/with}}
-
-<div class="ticket-logs">
-{{#each metadata.widgetLogs}}
-  sasdaa
-{{else}}
-  {{t 'widget.logs.empty'}}
-{{/each}}
-</div>

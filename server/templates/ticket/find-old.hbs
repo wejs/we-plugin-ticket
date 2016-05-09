@@ -1,6 +1,6 @@
 <div class="tickets-menu">
-  <a href="{{req.path}}" class="btn btn-default active">{{t 'user.ticket.find'}}</a>
-  <a href="{{req.path}}?old=true" class="btn btn-default">{{t 'user.ticket.find.old'}}</a>
+  <a href="{{req.path}}" class="btn btn-default">{{t 'user.ticket.find'}}</a>
+  <a href="{{req.path}}?old=true" class="btn btn-default active">{{t 'user.ticket.find.old'}}</a>
 </div>
 <div class="tickets">
 {{#each data}}
@@ -13,10 +13,7 @@
     <div class="tickets-footer">
       {{#link-to 'user.ticket.findOne' ownerId id class="btn btn-default"}}
         <span class="fa fa-link" aria-hidden="true"></span> {{t 'View'}}
-      {{/link-to}} {{#unless old}}
-        {{#link-to 'user.ticket.edit' ownerId id class="btn btn-default"}}
-          <span class="fa fa-pencil" aria-hidden="true"></span> {{t 'Edit'}}
-        {{/link-to}} {{/unless}}
+      {{/link-to}}
       {{#if downloadAvaible}}
         {{#link-to 'user.ticket.download' ownerId id class="btn btn-default" target="_blank"}}
           <span class="fa fa-download" aria-hidden="true"></span> {{t 'Download'}}

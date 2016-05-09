@@ -15,24 +15,35 @@ module.exports = {
       }
     } else {
       res.locals.title = res.locals.__('user.ticket.find.old');
+      res.locals.template = 'ticket/find-old';
       res.locals.query.where.date = {
         $lt: new Date()
       }
     }
+
+    res.locals.query.where.status = { $ne: 'expired' };
+
+    res.locals.query.include.push({
+      model: req.we.db.models.ticketLog, as: 'logs',
+      include: [{
+        model: req.we.db.models.user, as: 'actor', attributes: ['id', 'displayName']
+      }]
+    });
 
     res.locals.Model.findAll(res.locals.query)
     .then(function afterFind(record) {
 
       res.locals.data = record;
 
-      res.locals.Model.count(res.locals.query)
+      return res.locals.Model.count(res.locals.query)
       .then(function afterCount(count) {
 
         res.locals.metadata.count = count;
-        res.ok();
 
-      }).catch(res.queryError);
-    }).catch(res.queryError);
+         res.ok();
+      });
+    })
+    .catch(res.queryError);
   },
   findOne: function findOne(req, res) {
     if (!req.isAuthenticated())
@@ -48,7 +59,15 @@ module.exports = {
       return res.notFound('user.ticket.findOne.not.found');
     }
 
-    return res.ok();
+    res.locals.data.getLogs({
+      include: [{
+        model: req.we.db.models.user, as: 'actor', attributes: ['id', 'displayName']
+      }]
+    })
+    .then(function (logs){
+      res.locals.data.logs = logs;
+      return res.ok();
+    }).catch(res.queryError);
   },
   edit: function edit(req, res) {
     if (!req.isAuthenticated())
@@ -64,25 +83,27 @@ module.exports = {
       return res.notFound('user.ticket.findOne.not.found');
     }
 
+    var record = res.locals.data;
+
+    if (!res.locals.redirectTo) {
+      res.locals.redirectTo = '/user/'+record.ownerId+'/ticket/'+record.id;
+    }
+
     if (!res.locals.template)
       res.locals.template = res.local.model + '/' + 'edit';
 
-    var record = res.locals.data;
-
-    // only update fullName in edit ticket
-    var newData = {
-      fullName: req.body.fullName
-    };
+    if (res.locals.data.old) {
+      return res.goTo(res.locals.redirectTo);
+    }
 
     if (req.we.config.updateMethods.indexOf(req.method) > -1) {
+
       if (!record) return res.notFound();
 
-      record.updateAttributes(newData)
+      record.updateAttributes( {
+        fullName: req.body.fullName
+      })
       .then(function afterUpdate() {
-
-        if (!res.locals.redirectTo) {
-          res.locals.redirectTo = '/user/'+record.ownerId+'/ticket/'+record.id;
-        }
 
         res.locals.data = record;
         res.updated();
@@ -92,7 +113,6 @@ module.exports = {
       res.ok();
     }
   },
-
   download: function download(req, res) {
     req.we.db.models.ticket.findOne({
       where: { id: req.params.ticketId }

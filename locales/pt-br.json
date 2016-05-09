@@ -3,5 +3,21 @@
   "tickets.my": "Meus tickets",
   "user.ticket.find": "Tickets",
   "user.ticket.find.old": "Tickets antigos",
-  "ticket.find.empty": "Você ainda não tem tickets para essa lista"
+  "ticket.find.empty": "Você ainda não tem tickets para essa lista",
+
+  "ticketLog.find.empty": "Esse ticket não tem registros de atividades",
+
+  "ticketLogs.find": "Atividades to ticket",
+
+  "ticketLog.text": "Atividade",
+  "ticketLog.displayName": "Ator",
+  "ticketLog.id": "ID",
+
+  "ticket.log.created": "O ticket foi criado",
+  "ticket.log.check.in": "Check in registrado",
+  "ticket.log.use.ticket": "Ticket usado, atividades finalizadas",
+
+  "form-ticket-fullName": "Nome completo",
+  "form-helper-ticket-fullName": "Nome completo da pessoa que vai utilizar o ticket. Esse nome será usado em atividades relacionadas ao ticket como a criação de certificados ou uso de protudos",
+  "form-placeholder-ticket-fullName": " "
 }

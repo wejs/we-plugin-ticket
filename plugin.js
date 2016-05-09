@@ -30,7 +30,6 @@ module.exports = function loadPlugin(projectPath, Plugin) {
       titleHandler : 'i18n',
       titleI18n: 'user.ticket.find'
     },
-
     'get /user/:userId/ticket/:ticketId': {
       name: 'user.ticket.findOne',
       controller: 'ticket',
@@ -87,11 +86,7 @@ module.exports = function loadPlugin(projectPath, Plugin) {
 
   plugin.SDK = require('./lib/SDK');
 
-  plugin.events.on('we:after:load:plugins', function (we) {
-    plugin.api = new plugin.SDK({ we: we });
-  });
-
-  plugin.hooks.on('we-plugin-menu:after:set:core:menus', function(data, done) {
+  plugin.addMyTicketsLink = function addMyTicketsLink(data, done) {
     if (!data.req.isAuthenticated()) return done();
     data.res.locals.userMenu.addLink({
       id: 'user-tickets-find',
@@ -105,7 +100,13 @@ module.exports = function loadPlugin(projectPath, Plugin) {
     });
 
     done();
+  }
+
+  plugin.events.on('we:after:load:plugins', function (we) {
+    plugin.api = new plugin.SDK({ we: we });
   });
+
+  plugin.hooks.on('we-plugin-menu:after:set:core:menus', plugin.addMyTicketsLink);
 
   plugin.addCss('we-plugin-ticket', {
     weight: 5, pluginName: 'we-plugin-ticket',

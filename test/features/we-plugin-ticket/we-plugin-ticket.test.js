@@ -29,7 +29,7 @@ describe('we-plugin-ticketFeature', function() {
     ticketAPI = we.plugins['we-plugin-ticket'].api;
 
     var userStub = stubs.userStub();
-    helpers.createUser(userStub, function(err, user) {
+    helpers.createUser(userStub, function (err, user) {
       if (err) throw err;
 
       stubData.ownerId = user.id;
@@ -76,6 +76,114 @@ describe('we-plugin-ticketFeature', function() {
     });
   });
 
+  describe('ticketModel', function(){
+    it ('should return ticket.error.required.ownerId error on create if not find the ownerId', function(done){
+      var stub = we.utils._.clone(stubData);
+
+      stub.ownerId = null;
+
+      we.db.models.ticket.create(stub)
+      .then(function(){
+        done('need to returns error');
+      }).catch(function (err){
+
+        assert.equal(err.message, 'ticket.error.required.ownerId');
+
+        done();
+      })
+
+    });
+  });
+
+  describe('plugin.addMyTicketsLink', function(){
+    it ('should skip if user not is authenticated', function(done){
+      var called = false;
+      var data = {
+        req: {
+          isAuthenticated: function() { return false; },
+        },
+        res: {
+          locals: {
+            userMenu: {
+              addLink: function() {
+                called = true;
+              }
+            }
+          }
+        }
+      };
+
+      we.plugins['we-plugin-ticket'].addMyTicketsLink(data, function(){
+        assert(!called);
+        done();
+      });
+    });
+
+    it ('should set tickets link in user menu', function(done){
+      var called = false;
+      var data = {
+        req: {
+          isAuthenticated: function() { return true; },
+          user: { id: 11 },
+          __: we.i18n.__
+        },
+        res: {
+          locals: {
+            userMenu: {
+              addLink: function(link) {
+                assert(link);
+                assert.equal(link.id, 'user-tickets-find');
+                assert.equal(link.href, '/user/11/ticket');
+
+                called = true;
+              }
+            }
+          }
+        }
+      };
+
+      we.plugins['we-plugin-ticket'].addMyTicketsLink(data, function(){
+        assert(called);
+        done();
+      });
+
+    });
+  });
+
+  describe('ticketLogModel', function(){
+    it ('should return ticketLog.error.required.actorId error on create if not find the actorId', function(done){
+      we.db.models.ticketLog.create({
+        text: 'asdasdasd'
+      })
+      .then(function(){
+        done('need to returns error');
+      }).catch(function (err){
+
+        assert.equal(err.message, 'ticketLog.error.required.actorId');
+
+        done();
+      })
+
+    });
+
+    it ('should return ticketLog.error.required.ticketId error on create if not find the ticketId', function(done){
+      we.db.models.ticketLog.create({
+        text: 'asdasdasd',
+        actorId: 10
+      })
+      .then(function(){
+        done('need to returns error');
+      }).catch(function (err){
+
+        assert.equal(err.message, 'ticketLog.error.required.ticketId');
+
+        done();
+      })
+
+    });
+  })
+
+
   describe('we.plugins[\'we-plugin-ticket\'].api', function () {
     describe('createTicket', function() {
       it ('createTicket should create one ticket with valid data', function (done) {
@@ -84,7 +192,7 @@ describe('we-plugin-ticketFeature', function() {
           if (err) throw err;
 
           assert(salvedTicket);
-          assert.equal(salvedTicket.status, 'reserved');
+          assert.equal(salvedTicket.status, 'valid');
 
           we.db.models.ticket.findOne({ where: { id: salvedTicket.id } })
           .then(function(t){
@@ -101,81 +209,21 @@ describe('we-plugin-ticketFeature', function() {
       });
     });
 
-    describe('validTicket', function() {
-      it ('validTicket should create one ticket with valid data', function (done) {
-        ticketAPI.createTicket(stubData, function (err, salvedTicket) {
-          if (err) throw err;
-
-          assert.equal(salvedTicket.status, 'reserved');
-
-          ticketAPI.validTicket(salvedTicket.id, function (err, record) {
-            if (err) throw err;
-
-            assert(record);
-            assert.equal(record.id, salvedTicket.id);
-            assert.equal(record.status, 'valid');
-
-            done();
-          });
-        });
-      });
-
-      it ('validTicket should return error if not find the record', function (done) {
-        ticketAPI.validTicket(46545654646, function (err, record) {
-          assert(!record);
-
-          assert.equal(err, 'ticket.not.found');
-
-          done();
-        });
-      });
-
-      it ('validTicket should skip update the ticket status if not is reserverd', function (done) {
-        ticketAPI.createTicket(stubData, function (err, salvedTicket) {
-          if (err) throw err;
-
-          assert.equal(salvedTicket.status, 'reserved');
-
-          ticketAPI.validTicket(salvedTicket.id, function (err, record) {
-            if (err) throw err;
-
-            assert(record);
-            assert.equal(record.id, salvedTicket.id);
-            assert.equal(record.status, 'valid');
-
-            ticketAPI.validTicket(salvedTicket.id, function (err, record) {
-              if (err) throw err;
-
-              assert(record);
-              assert.equal(record.id, salvedTicket.id);
-              assert.equal(record.status, 'valid');
-
-              done();
-            });
-          });
-        });
-      });
-    });
-
     describe('checkIn', function() {
       it ('checkIn should change the checkIn status with valid data', function (done) {
         ticketAPI.createTicket(stubData, function (err, salvedTicket) {
           if (err) throw err;
 
-          assert.equal(salvedTicket.status, 'reserved');
+          assert.equal(salvedTicket.status, 'valid');
 
-          ticketAPI.validTicket(salvedTicket.id, function (err) {
+          ticketAPI.checkIn(salvedTicket.id, 10, function (err, record) {
             if (err) throw err;
 
-            ticketAPI.checkIn(salvedTicket.id, function (err, record) {
-              if (err) throw err;
+            assert(record);
+            assert.equal(record.id, salvedTicket.id);
+            assert(record.checkIn);
 
-              assert(record);
-              assert.equal(record.id, salvedTicket.id);
-              assert(record.checkIn);
-
-              done();
-            });
+            done();
           });
         });
       });
@@ -189,7 +237,7 @@ describe('we-plugin-ticketFeature', function() {
           });
         }
 
-        ticketAPI.checkIn(1, function (err, record) {
+        ticketAPI.checkIn(1, 10, function (err, record) {
           assert(!record);
           assert.equal(err, 'ticket.not.found');
 
@@ -199,16 +247,16 @@ describe('we-plugin-ticketFeature', function() {
         });
       });
 
-      it ('checkIn should return error ticket.not.valid if status is reserved', function (done) {
+      it ('checkIn should return error ticket.not.valid if status is invalid', function (done) {
 
         var findOne = we.db.models.ticket.findOne;
         we.db.models.ticket.findOne = function() {
           return new we.db.Sequelize.Promise(function (resolve) {
-            resolve({id: 1, status: 'reserved'});
+            resolve({id: 1, status: 'invalid'});
           });
         }
 
-        ticketAPI.checkIn(1, function (err, record) {
+        ticketAPI.checkIn(1, 10, function (err, record) {
           assert(!record);
           assert.equal(err, 'ticket.not.valid');
 
@@ -218,18 +266,18 @@ describe('we-plugin-ticketFeature', function() {
         });
       });
 
-      it ('checkIn should return error ticket.status.are.closed if status is closed', function (done) {
+      it ('checkIn should return error ticket.status.are.used if status is used', function (done) {
 
         var findOne = we.db.models.ticket.findOne;
         we.db.models.ticket.findOne = function() {
           return new we.db.Sequelize.Promise(function (resolve) {
-            resolve({id: 1, status: 'closed'});
+            resolve({id: 1, status: 'used'});
           });
         }
 
-        ticketAPI.checkIn(1, function (err, record) {
+        ticketAPI.checkIn(1, 10, function (err, record) {
           assert(!record);
-          assert.equal(err, 'ticket.status.are.closed');
+          assert.equal(err, 'ticket.status.are.used');
 
           we.db.models.ticket.findOne = findOne;
 
@@ -238,35 +286,30 @@ describe('we-plugin-ticketFeature', function() {
       });
     });
 
-    describe('closeTicket', function() {
-      it ('closeTicket should change to closed status with valid data', function (done) {
+    describe('useTicket', function() {
+      it ('useTicket should change to used status with valid data', function (done) {
         ticketAPI.createTicket(stubData, function (err, salvedTicket) {
           if (err) throw err;
 
-          assert.equal(salvedTicket.status, 'reserved');
+          assert.equal(salvedTicket.status, 'valid');
 
-          ticketAPI.validTicket(salvedTicket.id, function (err) {
+          ticketAPI.checkIn(salvedTicket.id, 10, function (err) {
             if (err) throw err;
 
-            ticketAPI.checkIn(salvedTicket.id, function (err) {
+            ticketAPI.useTicket(salvedTicket.id, 10, function (err, record) {
               if (err) throw err;
 
-              ticketAPI.closeTicket(salvedTicket.id, function (err, record) {
-                if (err) throw err;
+              assert(record);
+              assert.equal(record.id, salvedTicket.id);
+              assert.equal(record.status, 'used');
 
-                assert(record);
-                assert.equal(record.id, salvedTicket.id);
-                assert.equal(record.status, 'closed');
-
-                done();
-
-              });
+              done();
             });
           });
         });
       });
 
-      it ('closeTicket should return error ticket.not.found if not find the record', function (done) {
+      it ('useTicket should return error ticket.not.found if not find the record', function (done) {
 
         var findOne = we.db.models.ticket.findOne;
         we.db.models.ticket.findOne = function() {
@@ -275,7 +318,7 @@ describe('we-plugin-ticketFeature', function() {
           });
         }
 
-        ticketAPI.closeTicket(1, function (err, record) {
+        ticketAPI.useTicket(1, 10, function (err, record) {
           assert(!record);
           assert.equal(err, 'ticket.not.found');
 
@@ -285,7 +328,7 @@ describe('we-plugin-ticketFeature', function() {
         });
       });
 
-      it ('closeTicket should return error ticket.not.found if not find the record', function (done) {
+      it ('useTicket should return error ticket.not.found if not find the record', function (done) {
 
         var findOne = we.db.models.ticket.findOne;
         we.db.models.ticket.findOne = function() {
@@ -294,7 +337,7 @@ describe('we-plugin-ticketFeature', function() {
           });
         }
 
-        ticketAPI.closeTicket(1, function (err, record) {
+        ticketAPI.useTicket(1, 10, function (err, record) {
           assert(!record);
           assert.equal(err, 'ticket.not.found');
 
@@ -304,16 +347,16 @@ describe('we-plugin-ticketFeature', function() {
         });
       });
 
-      it ('closeTicket should return error ticket.not.valid if status is reserved', function (done) {
+      it ('useTicket should return error ticket.not.valid if status is invalid', function (done) {
 
         var findOne = we.db.models.ticket.findOne;
         we.db.models.ticket.findOne = function() {
           return new we.db.Sequelize.Promise(function (resolve) {
-            resolve({ id: 1, status: 'reserved' });
+            resolve({ id: 1, status: 'invalid' });
           });
         }
 
-        ticketAPI.closeTicket(1, function (err, record) {
+        ticketAPI.useTicket(1, 10, function (err, record) {
           assert(!record);
           assert.equal(err, 'ticket.not.valid');
 
@@ -322,26 +365,80 @@ describe('we-plugin-ticketFeature', function() {
           done();
         });
       });
-
-      it ('closeTicket should return skip update if status is closed', function (done) {
+      it ('useTicket should return skip update if status is used', function (done) {
 
         var findOne = we.db.models.ticket.findOne;
         we.db.models.ticket.findOne = function() {
           return new we.db.Sequelize.Promise(function (resolve) {
-            resolve({ id: 1, status: 'closed' });
+            resolve({ id: 1, status: 'used' });
           });
         }
 
-        ticketAPI.closeTicket(1, function (err, record) {
+        ticketAPI.useTicket(1, 10, function (err, record) {
           if (err) throw err;
 
           assert(record);
-          assert.equal(record.status, 'closed');
+          assert.equal(record.status, 'used');
 
           we.db.models.ticket.findOne = findOne;
 
           done();
         });
+      });
+
+    });
+    describe('getLogs', function() {
+
+      var salvedTicket;
+      var logTexts = [
+        'ticket.log.created',
+        'Testing ticket log 1',
+        'Testing ticket log 2',
+        'Testing ticket log 3'
+      ];
+
+      before(function (done){
+        ticketAPI.createTicket(stubData, function (err, r) {
+          if (err) return done(err);
+          salvedTicket = r;
+          done();
+        });
+      });
+
+      it ('getLogs should return all logs from one ticket', function (done) {
+
+        we.utils.async.series([
+          function(done) {
+            ticketAPI.addLog(salvedTicket.id, salvedUser.id, {
+              text: logTexts[1]
+            }, done);
+          },
+          function(done) {
+            ticketAPI.addLog(salvedTicket.id, salvedUser.id, {
+              text: logTexts[2]
+            }, done);
+          },
+          function(done) {
+            ticketAPI.addLog(salvedTicket.id, salvedUser.id, {
+              text: logTexts[3]
+            }, done);
+          },
+
+          function(done) {
+            ticketAPI.getLogs(salvedTicket.id, function (err, logs){
+              if (err) return done(err);
+              assert(logs);
+
+              assert.equal(logs.length, 4);
+
+              logs.forEach(function(l) {
+                assert(logTexts.indexOf(l.text) > -1);
+              });
+
+              done();
+            })
+          }
+        ], done);
       });
 
     });

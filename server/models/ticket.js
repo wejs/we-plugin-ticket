@@ -17,10 +17,9 @@ module.exports = function (we) {
         unique: true,
         primaryKey: true
       },
-
       idFilled: {
         type: we.db.Sequelize.VIRTUAL,
-        get: function() {
+        get: function get() {
           var id = this.getDataValue('id');
           var width = 11;
 
@@ -32,7 +31,6 @@ module.exports = function (we) {
           return id + '';
         }
       },
-
       typeName: {
         type: we.db.Sequelize.STRING,
         formFieldType: null, // hide from form
@@ -52,6 +50,21 @@ module.exports = function (we) {
         type: we.db.Sequelize.DATE,
         allowNull: false
       },
+      old: {
+        type: we.db.Sequelize.VIRTUAL,
+        get: function() {
+          return ( this.getDataValue('date') < new Date() );
+        }
+      },
+      downloadAvaible: {
+        type: we.db.Sequelize.VIRTUAL,
+        get: function() {
+          return (
+            this.getDataValue('status') != 'reserved' &&
+            this.getDataValue('status') != 'overdue'
+          );
+        }
+      },
       fullName: {
         type: we.db.Sequelize.TEXT,
         formFieldType: 'text',
@@ -61,11 +74,11 @@ module.exports = function (we) {
         type: we.db.Sequelize.STRING(1500),
         allowNull: false
       },
-      // reserved, valid, closed
+      // valid, used, invalid
       status: {
         type: we.db.Sequelize.STRING(10),
         formFieldType: null, // hide from form
-        defaultValue: 'reserved'
+        defaultValue: 'valid'
       },
       checkIn: {
         type: we.db.Sequelize.BOOLEAN,
@@ -79,13 +92,18 @@ module.exports = function (we) {
       },
       eventUrl: {
         type: we.db.Sequelize.STRING(1500)
-      },
+      }
     },
     associations: {
       owner: {
         type: 'belongsTo',
         model: 'user',
         required: true
+      },
+      logs: {
+        type: 'hasMany',
+        model: 'ticketLog',
+        inverse: 'ticket'
       }
     },
     options: {
@@ -104,7 +122,7 @@ module.exports = function (we) {
       hooks: {
         beforeCreate: function beforeCreate(record, opts, done) {
           if (!record.ownerId) return done('ticket.error.required.ownerId');
-          if (!record.status) record.status = 'reserved';
+          if (!record.status) record.status = 'valid';
 
           done();
         }
