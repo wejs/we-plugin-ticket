@@ -109,8 +109,53 @@ module.exports = function (we) {
     options: {
       titleField: 'title',
 
-      classMethods: {},
+      classMethods: {
+        /**
+         * Context loader, preload current request record and related data
+         *
+         * @param  {Object}   req  express.js request
+         * @param  {Object}   res  express.js response
+         * @param  {Function} done callback
+         */
+        contextLoader: function contextLoader(req, res, done) {
+          if (res.locals.name == 'user.ticket.find')
+            return this.findContextLoader(req, res, done);
+
+          if (!res.locals.id || !res.locals.loadCurrentRecord) return done();
+
+          return this.findOne({
+            where: { id: res.locals.id},
+            include: [{ all: true }]
+          }).then(function afterFind(record) {
+            res.locals.data = record;
+
+            if (record && req.isAuthenticated() && record.isOwner(req.user.id)) {
+                req.userRoleNames.push('owner');
+            }
+
+            done();
+          }).catch(done);
+        },
+        findContextLoader: function findContextLoader(req, res, done) {
+          if (
+            res.locals.currentUserTickets &&
+            req.isAuthenticated() &&
+            res.locals.user
+          ) {
+            if (res.locals.user.id && req.user.id) {
+              // is owner
+              req.userRoleNames.push('owner');
+            }
+          }
+
+          done();
+        }
+      },
       instanceMethods: {
+        isOwner: function isOwner(userId) {
+          if (this.ownerId == userId) return true;
+          return false;
+        },
         getQRCode: function getQRCode(type) {
           var qrID = we.config.hostname+'/user/'+this.ownerId+'/ticket/'+this.idFilled;
           return qr.imageSync(qrID, {
