@@ -4,13 +4,18 @@
 
 We.js tickets plugin, add user tickets from events, courses ...",
 
-Add all process related to generate and valid event tickets
+Add SDK to process related to generate and valid event tickets
+
+Routes to:
+
+- Download ticket
+- Edit ticket fullName
+- Find and findOne user ticket with suport to owner permission
+- Ticket QRCode with restricted url to ticket data
 
 ## URLs
 
-### Get user tickets
-
-See in: [plugin.js](https://github.com/wejs/we-plugin-ticket/blob/master/plugin.js#L22)
+See in: [plugin.js](https://github.com/wejs/we-plugin-ticket/blob/master/plugin.js#L51)
 
 ## SDK
 

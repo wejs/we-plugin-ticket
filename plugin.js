@@ -98,15 +98,6 @@ module.exports = function loadPlugin(projectPath, Plugin) {
         done();
       }
     },
-    // get ticket data with ticket ID
-    'get /api/v1/ticket/valid/:ticketId': {
-      name: 'user.ticket.findOne',
-      controller: 'ticket',
-      action: 'findOne',
-      model: 'ticket',
-      permission: 'verify_user_ticket',
-      responseType: 'json'
-    },
 
     'get /user/:userId/ticket/:ticketId/download.pdf': {
       name: 'user.ticket.download',
